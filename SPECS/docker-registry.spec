@@ -7,11 +7,11 @@
 
 Summary:        Registry server for Docker
 Name:           docker-registry
-Version:        0.8.1
-Release:        2%{?dist}
+Version:        0.9.1
+Release:        1%{?dist}
 License:        ASL 2.0
-URL:            https://github.com/dotcloud/%{name}
-Source:         https://github.com/dotcloud/%{name}/archive/%{version}.tar.gz
+URL:            https://github.com/docker/%{name}
+Source:         https://github.com/docker/%{name}/archive/%{version}.tar.gz
 Source1:        docker-registry.service
 Source2:        docker-registry.sysconfig
 Source3:        docker-registry.sysvinit
@@ -38,6 +38,7 @@ Requires:       python-flask
 Requires:       python-gevent
 Requires:       python-gunicorn
 Requires:       python-jinja2
+Requires:	python-m2ext
 Requires:       python-requests
 Requires:       python-rsa
 Requires:       python-simplejson
@@ -56,6 +57,9 @@ rm -rf contrib/golang_impl
 find . -name "*.py" \
          -print |\
          xargs sed -i '/flask_cors/d'
+
+# fix up the %doc
+mv docker_registry/extensions/README.md README-extensions.md
 
 %build
 %{__python} setup.py build
@@ -110,8 +114,9 @@ fi
 %endif
 
 %files
-%doc AUTHORS CHANGELOG.md CONTRIBUTE.md
+%doc AUTHORS CHANGELOG.md CONTRIBUTING.md
 %doc LICENSE README.md
+%doc README-extensions.md
 %config(noreplace) %{_sysconfdir}/sysconfig/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.yml
 %dir %{python_sitelib}/%{name}
@@ -139,6 +144,14 @@ fi
 %{python_sitelib}/%{name}/docker_registry/server/*.py
 %{python_sitelib}/%{name}/docker_registry/server/*.pyc
 %{python_sitelib}/%{name}/docker_registry/server/*.pyo
+%dir %{python_sitelib}/%{name}/docker_registry/extensions
+%{python_sitelib}/%{name}/docker_registry/extensions/*.py
+%{python_sitelib}/%{name}/docker_registry/extensions/*.pyc
+%{python_sitelib}/%{name}/docker_registry/extensions/*.pyo
+%dir %{python_sitelib}/%{name}/docker_registry/extras
+%{python_sitelib}/%{name}/docker_registry/extras/*.py
+%{python_sitelib}/%{name}/docker_registry/extras/*.pyc
+%{python_sitelib}/%{name}/docker_registry/extras/*.pyo
 %dir %{python_sitelib}/%{name}/tests
 %{python_sitelib}/%{name}/tests/*.py
 %{python_sitelib}/%{name}/tests/*.pyc
@@ -169,6 +182,9 @@ fi
 %endif
 
 %changelog
+* Fri Jan 23 2015 Brandon Pierce <brandon@ihashacks.com> - 0.9.1-1
+- New upstream release 0.9.1
+
 * Fri Sep 05 2014 Lokesh Mandvekar <lsm5@fedoraproject.org> - 0.8.1-2
 - Resolves: rhbz#1137026 - remove flask_cors (not packaged yet)
 - Package owns all dirs created
